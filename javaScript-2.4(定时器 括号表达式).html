@@ -1,0 +1,122 @@
+<!DOCTYPE html><html><head><title>javaScript-2.4(定时器 括号表达式)</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style>
+.note-content  {font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', STHeiti, 'Microsoft YaHei', 'WenQuanYi Micro Hei', SimSun, Song, sans-serif;}
+
+</style></head><body><div id='preview-contents' class='note-content'>
+                        
+                    
+
+
+
+<h2 id="javascript-24定时器-括号表达式">javaScript-2.4(定时器 括号表达式)</h2>
+
+<hr>
+
+<div><div class="toc"><div class="toc">
+<ul>
+<li><ul>
+<li><a href="#javascript-24定时器-括号表达式">javaScript-2.4(定时器 括号表达式)</a></li>
+<li><a href="#问题">问题：</a><ul>
+<li><ul>
+<li><a href="#定时器">定时器</a></li>
+<li><a href="#括号表达式">括号表达式</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+<hr>
+
+
+
+<h2 id="问题">问题：</h2>
+
+<p>1，能不能在类中检测到创建时候的那个实例  可以，输出this就可以 是值 <br>
+是值类型，还是变量 <br>
+2，eval <br>
+3，变量，跟函数的区别  没区别 <br>
+4，JSON字符串跟普通字符串的区别  JSON字符串里面的格式必须是对象，而且属性名还要有引号，</p>
+
+<p>5，怎么确定是不是自己的私有属性，看比较的是属性名，而不值，看它的私有属性里面，有没有这个属性名，     比较的是属性名</p>
+
+<p>6，__proto__不兼容是实例，还是全部</p>
+
+
+
+<h4 id="定时器">定时器</h4>
+
+<p>window.setInterval(fn,1000);//在window下让fn，1000毫秒后执行 <br>
+创建 <br>
+定时器可以分为两个阶段 <br>
+1,设置一个定时器(setInterval/setTimeout),然后再设置一个等待时间(interval时间因子),接下来等待即可 <br>
+2,当到达制定的时间后,执行定时器规划任务(设置定时器,第一个参数传递的函数就是我们规划的任务)</p>
+
+
+
+<pre class="prettyprint hljs-dark"><code class="hljs javascript"><div class="hljs-line"><span class="hljs-keyword">var</span> obj={<span class="hljs-attr">name</span>:<span class="hljs-string">'zhufeng'</span>};
+</div><div class="hljs-line"><span class="hljs-comment">//setInterval(function(){</span>
+</div><div class="hljs-line"><span class="hljs-comment">//this:window</span>
+</div><div class="hljs-line">},<span class="hljs-number">1000</span>);
+</div><div class="hljs-line">
+</div><div class="hljs-line">
+</div><div class="hljs-line">setInterval(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+</div><div class="hljs-line"><span class="hljs-comment">//this:obj</span>
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(<span class="hljs-keyword">this</span>);
+</div><div class="hljs-line">}.call(obj),<span class="hljs-number">1000</span>);<span class="hljs-comment">//设置定时器的时候,就把函数执行了(虽然改变了函数中的this),把函数执行的返回值(undefined)并没有报错,因为定时器本身屏蔽了错误</span>
+</div><div class="hljs-line">
+</div><div class="hljs-line">
+</div><div class="hljs-line">setInterval(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+</div><div class="hljs-line"><span class="hljs-comment">//this:obj</span>
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(<span class="hljs-keyword">this</span>);
+</div><div class="hljs-line">}.bind(obj),<span class="hljs-number">1000</span>);<span class="hljs-comment">//bind:预先把函数中的THIS修改为OBJ,当定时器到达指定的时间后,执行这个函数,THIS也就是OBJ了(IE6~8下不兼容)</span>
+</div><div class="hljs-line">
+</div><div class="hljs-line">
+</div><div class="hljs-line"><span class="hljs-comment">//-&gt;setTimeout:到达指定时间执行一次函数,执行完成后,当前的定时器就没用了</span>
+</div><div class="hljs-line"><span class="hljs-comment">//-&gt;setInterval:到达指定时间</span>
+</div><div class="hljs-line">
+</div></code></pre>
+
+
+
+<pre class="prettyprint hljs-dark"><code class="hljs accesslog"><div class="hljs-line">/*
+</div><div class="hljs-line"> 定时器一共两种:setInterval/setTimeout
+</div><div class="hljs-line">
+</div><div class="hljs-line"> <span class="hljs-number">1</span>、setInterval(<span class="hljs-string">[function]</span>,<span class="hljs-string">[intarval]</span>) ：设置一个定时器，然后每隔<span class="hljs-string">[intarval]</span>这么长的时间执行一次<span class="hljs-string">[function]</span>，直到手动清除定时器，才会终止
+</div><div class="hljs-line">
+</div><div class="hljs-line"> <span class="hljs-number">2</span>、setTimeout(<span class="hljs-string">[function]</span>,<span class="hljs-string">[intarval]</span>)：设置一个定时器，然后等<span class="hljs-string">[intarval]</span>这么长的时间执行一次<span class="hljs-string">[function]</span>，定时器结束
+</div><div class="hljs-line"> */
+</div></code></pre>
+
+<p>//=&gt;设置定时器的时候,会有一个返回值,返回值是一个数字,代表当前的定时器是第几个，当我们清除定时器的时候，只需要指定这个数字，就会把相关的定时器清除掉 <br>
+//===&gt;不管设置的是那种定时器,都是按照设定的时间排好序号的,清除的时候 clearInterval &amp;&amp; clearTimeout 中的任意一个方法,只要指定好对应的编号,都可以把当前的定时器清除掉</p>
+
+
+
+<pre class="prettyprint hljs-dark"><code class="hljs javascript"><div class="hljs-line"><span class="hljs-built_in">window</span>.setInterval(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-built_in">console</span>.log(<span class="hljs-number">1</span>);
+</div><div class="hljs-line">}, <span class="hljs-number">1000</span>);
+</div><div class="hljs-line">
+</div><div class="hljs-line"><span class="hljs-comment">// var timer2 = window.setTimeout(function () {</span>
+</div><div class="hljs-line"><span class="hljs-comment">//     console.log(2);</span>
+</div><div class="hljs-line"><span class="hljs-comment">// }, 500);</span>
+</div></code></pre>
+
+
+
+<h4 id="括号表达式">括号表达式</h4>
+
+<p><strong>例如：</strong> <br>
+<strong>(12,13) -&gt;13</strong></p>
+
+<blockquote>
+  <p>括号表达式：一个小括号中出现多项（用逗号隔开），我们获取的最后结果是最后一项的值</p>
+</blockquote>
+
+<p><strong>例如：</strong> <br>
+(obj.fn)();  //-&gt;this:obj <br>
+(12, obj.fn)();  //-&gt;this:window 括号表达式中获取的值是把obj.fn的属性值克隆了一份拿来用的，相当于执行了一个自执行函数</p></div></body></html>

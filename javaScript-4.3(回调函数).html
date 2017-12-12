@@ -1,0 +1,69 @@
+<!DOCTYPE html><html><head><title>javaScript-4.3(回调函数)</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style>
+.note-content  {font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', STHeiti, 'Microsoft YaHei', 'WenQuanYi Micro Hei', SimSun, Song, sans-serif;}
+
+</style></head><body><div id='preview-contents' class='note-content'>
+                        
+                    
+
+
+
+<h2 id="javascript-43回调函数">javaScript-4.3(回调函数)</h2>
+
+<hr>
+
+<div><div class="toc"><div class="toc">
+<ul>
+<li><ul>
+<li><a href="#javascript-43回调函数">javaScript-4.3(回调函数)</a><ul>
+<li><ul>
+<li><a href="#回调函数">回调函数:</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+<hr>
+
+
+
+<h4 id="回调函数">回调函数:</h4>
+
+<blockquote>
+  <p>把一个函数<strong>(这个函数的地址)</strong>当做<strong>实参(值)</strong>传递给另外一个正在执行的函数,在另一个函数执行的过程中.把我们传递的这个回调函数执行,</p>
+  
+  <pre class="prettyprint hljs-dark"><code class="hljs javascript"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fn</span>(<span class="hljs-params">num, callBack</span>) </span>{
+</div><div class="hljs-line">        <span class="hljs-comment">//传递的回调函数可以在FN中的任何一个位置执行:根据需求来规划即可</span>
+</div><div class="hljs-line">        <span class="hljs-comment">//而且我们的回调函数可以根据需求被执行N次</span>
+</div><div class="hljs-line">        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">10</span>; i++) {
+</div><div class="hljs-line">            callBack&amp;&amp;callBack();
+</div><div class="hljs-line">        }
+</div><div class="hljs-line">        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'FN'</span>);
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">    fn(<span class="hljs-number">100</span>,<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'OK'</span>);
+</div><div class="hljs-line">    });
+</div></code></pre>
+  
+  <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fn</span>(<span class="hljs-params">num, callBack</span>) </span>{
+</div><div class="hljs-line">        <span class="hljs-comment">//不仅仅能执行,而且可以把当前函数做任何想做的操作</span>
+</div><div class="hljs-line">        <span class="hljs-comment">//1,可以给回调函数传递参数值</span>
+</div><div class="hljs-line">        <span class="hljs-comment">//2,改变回调函数中的this</span>
+</div><div class="hljs-line">            callBack&amp;&amp;callBack.call(<span class="hljs-built_in">arguments</span>.callee,<span class="hljs-number">100</span>,<span class="hljs-number">200</span>);
+</div><div class="hljs-line">        <span class="hljs-built_in">console</span>.dir(<span class="hljs-built_in">arguments</span>);
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">    fn(<span class="hljs-number">100</span>,<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">a,b</span>) </span>{
+</div><div class="hljs-line">        <span class="hljs-comment">//-&gt;a:100    b:200    this:fn</span>
+</div><div class="hljs-line">        <span class="hljs-built_in">console</span>.log(a,b,<span class="hljs-keyword">this</span>);
+</div><div class="hljs-line">    });
+</div><div class="hljs-line">    <span class="hljs-comment">//执行sort方法的时候,把匿名函数做为回调函数传递给了sort,在sort执行的过程中,把匿名函数也执行也执行了(被执行了N次),并且每一次执行都把数组中的当前项和下一项做为参数传递给这个匿名的回调函数</span>
+</div><div class="hljs-line"><span class="hljs-comment">//ary.sort(function (a, b) {</span>
+</div><div class="hljs-line"><span class="hljs-comment">//        return a-b;</span>
+</div><div class="hljs-line"><span class="hljs-comment">//    });</span>
+</div></code></pre>
+</blockquote></div></body></html>

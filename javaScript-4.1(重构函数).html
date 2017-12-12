@@ -1,0 +1,151 @@
+<!DOCTYPE html><html><head><title>javaScript-4.1(重构函数)</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style>
+.note-content  {font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', STHeiti, 'Microsoft YaHei', 'WenQuanYi Micro Hei', SimSun, Song, sans-serif;}
+
+</style></head><body><div id='preview-contents' class='note-content'>
+                        
+                    
+
+
+
+<h2 id="javascript-41重构函数">javaScript-4.1(重构函数)</h2>
+
+<hr>
+
+<div><div class="toc"><div class="toc">
+<ul>
+<li><ul>
+<li><a href="#javascript-41重构函数">javaScript-4.1(重构函数)</a><ul>
+<li><ul>
+<li><a href="#js高阶编程技巧惰性思想">JS高阶编程技巧：惰性思想</a></li>
+<li><a href="#js惰性思想重构函数">JS惰性思想:重构函数</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+<hr>
+
+
+
+<h4 id="js高阶编程技巧惰性思想">JS高阶编程技巧：惰性思想</h4>
+
+<blockquote>
+  <p>第一次加载页面,在给utils赋值的时候,执行一个自执行函数,形成一个不销毁的私有作用域,在这个作用域中定义一个变量来存储当前的浏览器是否兼容某个属性或者方法</p>
+  
+  <p>以后在getCss等其他的方法中,如果再需要判断是否兼容,就没必要在检测一次了,直接使用这个变量的值即可</p>
+  
+  <p>能够执行一次就解决的,绝对不执行多次,这种<code>懒思想</code>就是惰性思想,基于这个思想构造的单例模式是“高级单例模式” <br>
+  第一次执行函数,我们判读兼容哪一个,然后把方法进行重新赋值,让其只等于兼容的哪一个即可,第二次及</p>
+</blockquote>
+
+
+
+<pre class="prettyprint hljs-dark"><code class="hljs javascript"><div class="hljs-line"><span class="hljs-keyword">var</span> utils = (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-keyword">var</span> isCompatible = <span class="hljs-string">'getComputedStyle'</span> <span class="hljs-keyword">in</span> <span class="hljs-built_in">window</span>;
+</div><div class="hljs-line">
+</div><div class="hljs-line">    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getCss</span>(<span class="hljs-params">curEle, attr</span>) </span>{
+</div><div class="hljs-line">        <span class="hljs-keyword">if</span> (isCompatible) {
+</div><div class="hljs-line">            <span class="hljs-keyword">return</span> <span class="hljs-built_in">window</span>.getComputedStyle(curEle, <span class="hljs-literal">null</span>)[attr];
+</div><div class="hljs-line">        } <span class="hljs-keyword">else</span> {
+</div><div class="hljs-line">            <span class="hljs-keyword">return</span> curEle.currentStyle[attr];
+</div><div class="hljs-line">        }
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> {
+</div><div class="hljs-line">        <span class="hljs-attr">getCss</span>: getCss
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">})();
+</div></code></pre>
+
+
+
+<h4 id="js惰性思想重构函数">JS惰性思想:重构函数</h4>
+
+<blockquote>
+  <blockquote>
+    <p><strong>第一次执行函数,我们判断兼容哪一个,然后把方法进行重新赋值,让其只等于兼容的哪一个即可,第二次及以后再执行的时候,直接的运行重构后的方法,告别了复杂的判断</strong></p>
+  </blockquote>
+</blockquote>
+
+
+
+<pre class="prettyprint hljs-dark"><code class="hljs javascript"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getCss</span>(<span class="hljs-params">curEle, attr</span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-keyword">if</span> (<span class="hljs-string">'getComputedStyle'</span> <span class="hljs-keyword">in</span> <span class="hljs-built_in">window</span>) {
+</div><div class="hljs-line">        getCss = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">curEle, attr</span>) </span>{
+</div><div class="hljs-line">            <span class="hljs-keyword">return</span> <span class="hljs-built_in">window</span>.getComputedStyle(curEle, <span class="hljs-literal">null</span>)[attr];
+</div><div class="hljs-line">        };
+</div><div class="hljs-line">    } <span class="hljs-keyword">else</span> {
+</div><div class="hljs-line">        getCss = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">curEle, attr</span>) </span>{
+</div><div class="hljs-line">            <span class="hljs-keyword">return</span> curEle.currentStyle[attr];
+</div><div class="hljs-line">        };
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> getCss(curEle, attr);
+</div><div class="hljs-line">}
+</div></code></pre>
+
+<p><strong>思考题:</strong></p>
+
+<blockquote>
+  <p>时间字符串格式化 <br>
+  var str = ‘2017-8-9 16:43:5’; <br>
+  把这个字符串可以变为 ‘xxxx年xx月xx日 xx时xx分xx秒’ / ‘xx-xx xx:xx 08-09 16:43’ … 变为一切你想需要的格式</p>
+</blockquote>
+
+
+
+<pre class="prettyprint hljs-dark"><code class="hljs awk"><div class="hljs-line">String.prototype.myFormatTime = <span class="hljs-keyword">function</span> myFormatTime(template) {
+</div><div class="hljs-line"><span class="hljs-regexp">//</span>     <span class="hljs-regexp">//</span>-&gt;this:str 我们需要格式化时间的字符串
+</div><div class="hljs-line"><span class="hljs-regexp">//</span>     var ary = this.match(<span class="hljs-regexp">/\d+/g</span>),
+</div><div class="hljs-line"><span class="hljs-regexp">//</span>         result = template || <span class="hljs-string">'{0}年{1}月{2}日 {3}时{4}分{5}秒'</span>;
+</div><div class="hljs-line"><span class="hljs-regexp">//</span>     result = result.replace(<span class="hljs-regexp">/\{(\d+)\}/g</span>, <span class="hljs-keyword">function</span> () {
+</div><div class="hljs-line"><span class="hljs-regexp">//</span>         var index = arguments[<span class="hljs-number">1</span>],
+</div><div class="hljs-line"><span class="hljs-regexp">//</span>             value = ary[index] || <span class="hljs-string">'0'</span>;
+</div><div class="hljs-line"><span class="hljs-regexp">//</span>         return value.length &lt; <span class="hljs-number">2</span> ? <span class="hljs-string">'0'</span> + value : value;
+</div><div class="hljs-line"><span class="hljs-regexp">//</span>     });
+</div><div class="hljs-line"><span class="hljs-regexp">//</span>     return result;
+</div><div class="hljs-line"><span class="hljs-regexp">//</span> };
+</div><div class="hljs-line"><span class="hljs-regexp">//</span> var str = <span class="hljs-string">'2017-8-9'</span>;
+</div><div class="hljs-line"><span class="hljs-regexp">//</span> console.log(str.myFormatTime());
+</div><div class="hljs-line"><span class="hljs-regexp">//</span> console.log(str.myFormatTime(<span class="hljs-string">'{1}-{2} {3}:{4}'</span>));
+</div><div class="hljs-line"><span class="hljs-regexp">//</span> console.log(str.myFormatTime(<span class="hljs-string">'{0}年{1}月{2}日'</span>));
+</div></code></pre>
+
+<p>2、URL参数格式化 <br>
+var url = ‘<a href="http://www.zhufengpeixun.com/index.html?name=zxt&amp;age=28&amp;sex=1&amp;type=0" target="_blank">http://www.zhufengpeixun.com/index.html?name=zxt&amp;age=28&amp;sex=1&amp;type=0</a>‘; <br>
+问号以后的都是<code>URL问号传参值</code>，接下里我们要把问号后面的信息拆解成为对象的键值对 <br>
+{name:’zxt’,age:28,sex:1,type:0}</p>
+
+
+
+<pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line">正则处理
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> obj = {};
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> reg = <span class="hljs-regexp">/([^?&amp;=]+)=([^?&amp;=]+)/g</span>;<span class="hljs-comment">//-&gt;当前正则匹配的是 xxx=xxx</span>
+</div><div class="hljs-line">url.replace(reg, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line"><span class="hljs-built_in">arguments</span>[<span class="hljs-number">1</span>] -&gt; key  第一个分组内容
+</div><div class="hljs-line"><span class="hljs-built_in">arguments</span>[<span class="hljs-number">2</span>] -&gt; value 第二个分组内容
+</div><div class="hljs-line">obj[<span class="hljs-built_in">arguments</span>[<span class="hljs-number">1</span>]] = <span class="hljs-built_in">arguments</span>[<span class="hljs-number">2</span>];
+</div><div class="hljs-line">});
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(obj);
+</div></code></pre>
+
+<p><strong>把URL问号传递的参数值格式化为一个JSON对象</strong></p>
+
+
+
+<pre class="prettyprint hljs-dark"><code class="hljs qml"><div class="hljs-line"><span class="hljs-built_in">String</span>.prototype.myQueryURLParameter = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">myQueryURLParameter</span>(<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-comment">//-&gt;this:url 我们需要处理的URL地址</span>
+</div><div class="hljs-line">    <span class="hljs-built_in">var</span> obj = {},
+</div><div class="hljs-line">        reg = <span class="hljs-regexp">/([^?&amp;=]+)=([^?&amp;=]+)/g</span>;
+</div><div class="hljs-line">    <span class="hljs-keyword">this</span>.replace(reg, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">        obj[<span class="hljs-built_in">arguments</span>[<span class="hljs-number">1</span>]] = <span class="hljs-built_in">arguments</span>[<span class="hljs-number">2</span>];
+</div><div class="hljs-line">    });
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> obj;
+</div><div class="hljs-line">};
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(<span class="hljs-built_in">url</span>.myQueryURLParameter());
+</div></code></pre></div></body></html>

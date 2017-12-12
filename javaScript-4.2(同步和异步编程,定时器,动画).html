@@ -1,0 +1,459 @@
+<!DOCTYPE html><html><head><title>javaScript-4.2(同步和异步编程,定时器,动画)</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style>
+.note-content  {font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', STHeiti, 'Microsoft YaHei', 'WenQuanYi Micro Hei', SimSun, Song, sans-serif;}
+
+</style></head><body><div id='preview-contents' class='note-content'>
+                        
+                    
+
+
+
+<h2 id="javascript-42同步和异步编程定时器动画">javaScript-4.2(同步和异步编程,定时器,动画)</h2>
+
+<hr>
+
+<div><div class="toc"><div class="toc">
+<ul>
+<li><ul>
+<li><a href="#javascript-42同步和异步编程定时器动画">javaScript-4.2(同步和异步编程,定时器,动画)</a><ul>
+<li><a href="#同步和异步编程">同步和异步编程</a><ul>
+<li><a href="#1同步">1、同步</a></li>
+<li><a href="#2异步">2、异步</a></li>
+</ul>
+</li>
+<li><a href="#定时器">定时器</a><ul>
+<li><a href="#定时器时间设置法则">定时器时间设置法则</a></li>
+</ul>
+</li>
+<li><a href="#定时器的时间设置">定时器的时间设置</a><ul>
+<li><a href="#实战案例">实战案例</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+<hr>
+
+
+
+<h3 id="同步和异步编程">同步和异步编程</h3>
+
+<p>JS是单线程的编程语言:</p>
+
+<p><strong>同步和异步编程:</strong></p>
+
+<blockquote>
+  <p><strong>每当执行一句或者一段JS代码,其实都是在完成一个任务</strong></p>
+</blockquote>
+
+
+
+<h4 id="1同步">1、同步</h4>
+
+<blockquote>
+  <p><strong>上一个任务没有完成,下一个任务不能执行</strong></p>
+  
+  <blockquote>
+    <p>==&gt;‘任务是自上而下逐一执行的’ <br>
+    ==&gt;JS中大部分的操作都是同步编程</p>
+  </blockquote>
+  
+  <pre class="prettyprint hljs-dark"><code class="hljs javascript"><div class="hljs-line"><span class="hljs-keyword">var</span> n = <span class="hljs-number">1</span>;
+</div><div class="hljs-line"><span class="hljs-keyword">while</span> (n === <span class="hljs-number">1</span>) {<span class="hljs-comment">//-&gt;当前这件事情是一个死循环:当前这件任务永远无法完成,而循环的操作是同步编程(这件事完不成,以后的事情都无法执行)</span>
+</div><div class="hljs-line">    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'ok'</span>);
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(<span class="hljs-string">'NO'</span>);<span class="hljs-comment">//-&gt;永远不会输出</span>
+</div><div class="hljs-line">
+</div></code></pre>
+</blockquote>
+
+
+
+<h4 id="2异步">2、异步</h4>
+
+<blockquote>
+  <p>上一个任务没有彻底完成(完成一半),下一个任务先去执行,等把下面的任务完成后,才会返回头执行上面没有彻底完成的任务</p>
+  
+  <blockquote>
+    <p><strong>JS是单线程的编程语言：它脑子中只有一根弦，一次只能处理一件事情</strong></p>
+  </blockquote>
+  
+  <p>JS中的<strong>(绑定事件/定时器/AJAX)</strong>是异步编程(目前看是这样);</p>
+  
+  <blockquote>
+    <p><strong>事件:    [<code>onclick(点击)</code>,<code>onload(加载成功)</code>,<code>onerror(加载失败)</code>,<code>onscroll(window窗口移动)</code>,]</strong></p>
+  </blockquote>
+  
+  <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line">=&gt;异步
+</div><div class="hljs-line">-&gt;定时器就是异步编程的
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> n = <span class="hljs-number">12</span>;
+</div><div class="hljs-line">setTimeout(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">    n++;
+</div><div class="hljs-line">    <span class="hljs-built_in">console</span>.log(n);<span class="hljs-comment">//-&gt;2) 13</span>
+</div><div class="hljs-line">}, <span class="hljs-number">1000</span>);
+</div><div class="hljs-line"><span class="hljs-comment">//-&gt;任务:设置一个定时器,1S后执行匿名函数</span>
+</div><div class="hljs-line"><span class="hljs-comment">//=&gt;按照同步理解：首先设置定时器,然后等待,此时什么都不能做,1S后把函数执行,才能执行其它的任务 (错误的)</span>
+</div><div class="hljs-line"><span class="hljs-comment">//=&gt;按照异步理解：首先设置定时器,但是我们不会去等待到时间再做其它的事情,在这个阶段我们首先会把下面的任务逐一去完成,当下面任务完成后,我们在返回头看定时器的等待时间是否到达,到达则执行匿名函数,如果没到继续等待 (正确的)</span>
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(n);<span class="hljs-comment">//-&gt;1) 12</span>
+</div></code></pre>
+  
+  <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line">=&gt;所有的事件绑定都是异步编程
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> n = <span class="hljs-number">12</span>;
+</div><div class="hljs-line"><span class="hljs-built_in">document</span>.body.onclick = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-built_in">console</span>.log(++n); <span class="hljs-comment">//-&gt;点击的时候才输出13</span>
+</div><div class="hljs-line">};
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(n);<span class="hljs-comment">//-&gt;12</span>
+</div><div class="hljs-line">
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> oImg = <span class="hljs-keyword">new</span> Image;
+</div><div class="hljs-line">oImg.src = <span class="hljs-string">'http://fanyi.baidu.com/static/translation/img/header/logo_cbfea26.png'</span>;
+</div><div class="hljs-line">oImg.onload = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'OK'</span>);<span class="hljs-comment">//-&gt;第二次</span>
+</div><div class="hljs-line">};
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(<span class="hljs-string">'NO'</span>);<span class="hljs-comment">//-&gt;第一次</span>
+</div><div class="hljs-line">
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> oImg = <span class="hljs-keyword">new</span> Image;
+</div><div class="hljs-line">oImg.src = <span class="hljs-string">'http://img3.imgtn.bdimg.com/it/u=2280528661,1869298878&amp;fm=214&amp;gp=0.jpg'</span>;
+</div><div class="hljs-line">oImg.onload = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'图片加载成功'</span>);
+</div><div class="hljs-line">};
+</div><div class="hljs-line">oImg.onerror = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'图片加载失败'</span>);
+</div><div class="hljs-line">};
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(<span class="hljs-string">'当前图片加载中，客官请稍等~~'</span>);
+</div></code></pre>
+</blockquote>
+
+<hr>
+
+<p><strong>时间测试:</strong></p>
+
+
+
+<pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-keyword">var</span> starTime=<span class="hljs-keyword">new</span> Data();
+</div><div class="hljs-line">xxxx
+</div><div class="hljs-line">vat endTime=<span class="hljs-keyword">new</span> Data();
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>(endTime-startTime);
+</div></code></pre>
+
+
+
+<pre class="prettyprint hljs-dark"><code class="hljs javascript"><div class="hljs-line"><span class="hljs-keyword">var</span> n = <span class="hljs-number">12</span>;
+</div><div class="hljs-line"> <span class="hljs-keyword">var</span> sTime = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>();
+</div><div class="hljs-line">setTimeout(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">     <span class="hljs-keyword">var</span> endTime = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>();
+</div><div class="hljs-line">     <span class="hljs-built_in">console</span>.log(endTime - sTime);<span class="hljs-comment">//-&gt;测试最小的反应时间</span>
+</div><div class="hljs-line">
+</div><div class="hljs-line">    <span class="hljs-built_in">console</span>.log(++n);<span class="hljs-comment">//-&gt;2) 13</span>
+</div><div class="hljs-line">}, <span class="hljs-number">0</span>);
+</div><div class="hljs-line">
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> starTime = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>();
+</div><div class="hljs-line"><span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">100000000</span>; i++) {
+</div><div class="hljs-line">
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> endTime = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>();
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(endTime - starTime); <span class="hljs-comment">//-&gt;通过性能测试，我们发现在谷歌下循环一亿次大概需要300MS左右</span>
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(n);<span class="hljs-comment">//-&gt;1) 12</span>
+</div><div class="hljs-line">
+</div></code></pre>
+
+<hr>
+
+
+
+<h3 id="定时器">定时器</h3>
+
+<p><strong>定时器可以分为两个阶段</strong></p>
+
+<blockquote>
+  <p>1、设置一个定时器(setInterval/setTimeout),然后再设置一个等待时间(interval时间因子),接下来等待即可</p>
+  
+  <p>2、当到达等待的时间后,执行定时器规划的任务(设置定时器,第一个参数传递的函数就是我们规划的任务)</p>
+</blockquote>
+
+
+
+<pre class="prettyprint hljs-dark"><code class="hljs javascript"><div class="hljs-line">setInterval(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-comment">//-&gt;this：window</span>
+</div><div class="hljs-line">}, <span class="hljs-number">1000</span>);
+</div><div class="hljs-line">
+</div><div class="hljs-line">setInterval(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-comment">//-&gt;this：obj</span>
+</div><div class="hljs-line">    <span class="hljs-built_in">console</span>.log(<span class="hljs-keyword">this</span>);
+</div><div class="hljs-line">}.call(obj), <span class="hljs-number">1000</span>);<span class="hljs-comment">//-&gt;设置定时器的时候,就把函数执行了(虽然改变了函数中的HIS),把函数执行的返回值(UNDEFINED)设置为定时器的第一个参数,1000MS后执行的是UNDEFINED  &lt;=&gt; setInterval(undefined,1000) 定时器到达时间执行undefined并没有报错,因为定时器本身屏蔽掉了错误</span>
+</div><div class="hljs-line">即使是错误的,但是定时器本身没有清除,还是会不断执行,并不会因为触发报错,就停止,?
+</div><div class="hljs-line">
+</div><div class="hljs-line">setInterval(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-comment">//-&gt;this：obj</span>
+</div><div class="hljs-line">    <span class="hljs-built_in">console</span>.log(<span class="hljs-keyword">this</span>);
+</div><div class="hljs-line">}.bind(obj), <span class="hljs-number">1000</span>);<span class="hljs-comment">//-&gt;bind：预先把函数中的THIS修改为OBJ,当定时器到达指定的时间后,执行这个函数,THIS也就是OBJ了 (IE6~8下不兼容)</span>
+</div><div class="hljs-line">
+</div><div class="hljs-line">
+</div><div class="hljs-line">setTimeout:到达指定时间执行一次函数,执行完成后,当前的定时器就没用了
+</div><div class="hljs-line">setInterval:到达指定的时间先把函数执行一次,但是此时定时器并没有失去它的作用,以后每间隔这么长的时间,当前的函数都会重新执行一次,除非手动清除当前的定时器
+</div><div class="hljs-line">setTimeout(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-comment">//-&gt;this:window</span>
+</div><div class="hljs-line">    <span class="hljs-built_in">console</span>.log(<span class="hljs-keyword">this</span>);
+</div><div class="hljs-line">}, <span class="hljs-number">1000</span>);
+</div></code></pre>
+
+<p><strong>定时器的返回值是一个数字（1+），代表当前定时器是页面中的第几个定时器(可以按照去银行办业务领取的排队号理解)</strong></p>
+
+<blockquote>
+  <p><strong>clearInterval/clearTimeout([NUM])：</strong> <br>
+  通过定时器的排队号清除指定的定时器,而且不管是用哪个定时器设置的,任意一个清除方法,只要把排队号指定好,都可以把定时器清除掉,比如：用setInterval设置的定时器，使用clearTimeout也可以把其清除掉(不推荐这样用)</p>
+  
+  <pre class="prettyprint hljs-dark"><code class="hljs javascript"><div class="hljs-line"><span class="hljs-keyword">var</span> timer1 = setInterval(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'ok'</span>);
+</div><div class="hljs-line">}, <span class="hljs-number">10000</span>);
+</div><div class="hljs-line">
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> timer2 = setTimeout(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'NO'</span>);
+</div><div class="hljs-line">}, <span class="hljs-number">20000</span>);
+</div><div class="hljs-line">clearInterval(<span class="hljs-number">2</span>);
+</div></code></pre>
+</blockquote>
+
+
+
+<h4 id="定时器时间设置法则">定时器时间设置法则</h4>
+
+<p><strong>定时器的时间因子设置为0,也不是立马执行,</strong>    <strong><code>每一个浏览器都有一个最小的反应时间</code></strong></p>
+
+<blockquote>
+  <p>(预估测试值:谷歌最小的反应时间是5~6ms IE最小反应时间是10~13ms  我们一般设置的时候,最小值设置为17ms性能会更好一些), <br>
+  当我们设置的时间小于这个值,浏览器也是按照最小的时间处理的  <br>
+  =&gt;也就是设置一个定时器,怎么着也要等一会在执行,此时不等,继续执行下面的任务…</p>
+  
+  <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"> <span class="hljs-keyword">var</span> n = <span class="hljs-number">12</span>;
+</div><div class="hljs-line"> setTimeout(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">     n++;
+</div><div class="hljs-line">     <span class="hljs-built_in">console</span>.log(n);<span class="hljs-comment">//-&gt;2) 13</span>
+</div><div class="hljs-line"> }, <span class="hljs-number">0</span>);
+</div><div class="hljs-line"> <span class="hljs-built_in">console</span>.log(n);<span class="hljs-comment">//-&gt;1) 12</span>
+</div></code></pre>
+</blockquote>
+
+
+
+<h3 id="定时器的时间设置">定时器的时间设置</h3>
+
+<p>我们给定时器设置一个时间,到达时间定时器一定执行了吗? <br>
+<strong>答案：不一定</strong></p>
+
+<blockquote>
+  <p>设置一个定时器,总要等一段时间再执行,此阶段我们不等,继续执行下面的任务,但是由于JS的单线程的,一次只能处理一件事情,下面的任务没完成,不管定时器是否到达设定的时间,也要把下面任务彻底完成后,才能反过头执行定时器里面的内容</p>
+</blockquote>
+
+
+
+<pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-keyword">var</span> n = <span class="hljs-number">12</span>;
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> sTime = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>();
+</div><div class="hljs-line">setTimeout(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> endTime = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>();
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(endTime - sTime);<span class="hljs-comment">//--&gt;303</span>
+</div><div class="hljs-line"><span class="hljs-comment">//-&gt;测试最小的反应时间</span>
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(++n);<span class="hljs-comment">//--&gt;2) 13</span>
+</div><div class="hljs-line">}, <span class="hljs-number">0</span>);
+</div><div class="hljs-line">
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> starTime = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>();
+</div><div class="hljs-line"><span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">100000000</span>; i++) {
+</div><div class="hljs-line">
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> endTime = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>();
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(endTime - starTime); <span class="hljs-comment">//--&gt;302</span>
+</div><div class="hljs-line"><span class="hljs-comment">//-&gt;通过性能测试，我们发现在谷歌下循环一亿次大概需要300MS左右</span>
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(n);<span class="hljs-comment">//--&gt;1) 12</span>
+</div></code></pre>
+
+<p><strong>当同步的任务彻底完成后,开始看之前设置的定时器是否到时间,到时间的给予执行</strong></p>
+
+<blockquote>
+  <p>如果有很多的定时器都到时间了,会把最先到达时间的先执行(因为在设置定时器的时候,浏览器会把计时最短的定时器排在队列的前面)</p>
+  
+  <pre class="prettyprint hljs-dark"><code class="hljs javascript"><div class="hljs-line">-&gt;一次都不会输出,因为执行死循环后,当前的浏览器就再也做不了其它的事情了(JS是单线程的)
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> n = <span class="hljs-number">12</span>;
+</div><div class="hljs-line">setTimeout(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-built_in">console</span>.log(++n);
+</div><div class="hljs-line">}, <span class="hljs-number">0</span>);
+</div><div class="hljs-line"><span class="hljs-keyword">while</span> (<span class="hljs-number">1</span> === <span class="hljs-number">1</span>) {
+</div><div class="hljs-line">
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><span class="hljs-built_in">console</span>.log(n);
+</div></code></pre>
+</blockquote>
+
+
+
+<h4 id="实战案例">实战案例</h4>
+
+
+
+<pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line">需求：开始进来输出<span class="hljs-number">1</span>，以后每隔<span class="hljs-number">1</span>S钟都累加<span class="hljs-number">1</span>，到<span class="hljs-number">5</span>结束
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> n = <span class="hljs-number">0</span>;
+</div><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fn</span>(<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">     n++;
+</div><div class="hljs-line">     <span class="hljs-built_in">console</span>.log(n);
+</div><div class="hljs-line">     <span class="hljs-keyword">if</span> (n &gt;= <span class="hljs-number">5</span>) {
+</div><div class="hljs-line">         clearInterval(timer);
+</div><div class="hljs-line">     }
+</div><div class="hljs-line">}
+</div><div class="hljs-line">fn();
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> timer = setInterval(fn, <span class="hljs-number">1000</span>);
+</div></code></pre>
+
+<hr>
+
+<p><strong>使用递归实现当前的需求:setTimeout模拟出setInterval的效果</strong> <br>
+递归：函数执行的时候,在调用自己执行</p>
+
+
+
+<pre class="prettyprint hljs-dark"><code class="hljs gauss"><div class="hljs-line">var n = <span class="hljs-number">0</span>,
+</div><div class="hljs-line">    timer = <span class="hljs-built_in">null</span>;
+</div><div class="hljs-line">function <span class="hljs-function"><span class="hljs-keyword">fn</span><span class="hljs-params">()</span> {
+</span></div><div class="hljs-line">    <span class="hljs-comment">//-&gt;执行FN的时候,上一次创建的那个定时器已经没用了,为了节约内存和性能,我们最好把没用的这个定时器给清除掉</span>
+</div><div class="hljs-line">    clearTimeout<span class="hljs-params">(timer)</span>;<span class="hljs-comment">//-&gt;清除上一次设置的定时器</span>
+</div><div class="hljs-line">
+</div><div class="hljs-line">    console.<span class="hljs-built_in">log</span>(++n);
+</div><div class="hljs-line">    <span class="hljs-keyword">if</span> (n &gt;= <span class="hljs-number">5</span>) {
+</div><div class="hljs-line">        <span class="hljs-keyword">return</span>;
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">    <span class="hljs-comment">//-&gt;arguments.callee:当前函数本身(JS严格模式下不允许使用,所以真正项目中我们基本上不用这个属性)</span>
+</div><div class="hljs-line">    timer = setTimeout(<span class="hljs-function"><span class="hljs-keyword">fn</span>, <span class="hljs-number">1000</span>)</span>;
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">fn</span><span class="hljs-params">()</span></span>;
+</div></code></pre>
+
+<p><strong>需求：让小球从当前位置运动到右边边界的位置(修改小球的LEFT值即可)</strong> <br>
+<strong>[步长固定，时间不固定]———————</strong></p>
+
+<blockquote>
+  <pre class="prettyprint hljs-dark"><code class="hljs javascript"><div class="hljs-line"><span class="hljs-keyword">var</span> box = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'box'</span>),
+</div><div class="hljs-line">    maxLeft = utils.win(<span class="hljs-string">'clientWidth'</span>) - box.offsetWidth,<span class="hljs-comment">//-&gt;计算出运动目标位置的LEFT值</span>
+</div><div class="hljs-line">    step = <span class="hljs-number">20</span>,<span class="hljs-comment">//-&gt;步长:每一次走多少距离</span>
+</div><div class="hljs-line">    interval = <span class="hljs-number">17</span>;<span class="hljs-comment">//-&gt;时间因子:多长时间执行一次运动(频率)</span>
+</div><div class="hljs-line">
+</div><div class="hljs-line">
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> timer = setInterval(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-keyword">var</span> curL = utils.css(box, <span class="hljs-string">'left'</span>);
+</div><div class="hljs-line">    curL += step;
+</div><div class="hljs-line">    utils.css(box, <span class="hljs-string">'left'</span>, curL);
+</div><div class="hljs-line">    <span class="hljs-keyword">if</span> (curL &gt;= maxLeft) {
+</div><div class="hljs-line">        clearInterval(timer);
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">}, interval);
+</div></code></pre>
+  
+  <p><strong>优化一：尽量少用全局的变量</strong> <br>
+  var box = document.getElementById(‘box’), <br>
+      maxLeft = utils.win(‘clientWidth’) - box.offsetWidth;</p>
+  
+  <p>真正项目中我们一般很少会把TIMER设置为全局变量(这样会导致变量冲突:可能一个TIMER代表的是另外的定时器了),我们一般都会把它设置在当前需要运动元素的自定义属性上,这样不仅仅防止了冲突,而且在任何时候如果需要,都可以通过自定义属性的方式获取到(不受闭包循环等干扰)</p>
+  
+  <pre class="prettyprint hljs-dark"><code class="hljs maxima"><div class="hljs-line"><span class="hljs-built_in">box</span>.<span class="hljs-built_in">timer</span> = setInterval(function () {
+</div><div class="hljs-line">    <span class="hljs-built_in">var</span> curL = utils.css(<span class="hljs-built_in">box</span>, 'left');
+</div><div class="hljs-line">    curL += <span class="hljs-number">20</span>;
+</div><div class="hljs-line">    utils.css(<span class="hljs-built_in">box</span>, 'left', curL);
+</div><div class="hljs-line">    <span class="hljs-keyword">if</span> (curL &gt;= maxLeft) {
+</div><div class="hljs-line">        clearInterval(<span class="hljs-built_in">box</span>.<span class="hljs-built_in">timer</span>);
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">}, <span class="hljs-number">17</span>);
+</div></code></pre>
+  
+  <p><strong>优化二</strong> <br>
+  边界判断:真正项目中我们做边界判断,都是首先拿当前位置加上步长,验证一下累加的值是否那会超过边界,如果已经超过边界了,我们就不要在加步长了,而是让元素直接运动到边界的位置即可…</p>
+  
+  <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-keyword">var</span> box = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'box'</span>),
+</div><div class="hljs-line">    maxLeft = utils.win(<span class="hljs-string">'clientWidth'</span>) - box.offsetWidth;
+</div><div class="hljs-line">box.timer = setInterval(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-keyword">var</span> curL = utils.css(box, <span class="hljs-string">'left'</span>);
+</div><div class="hljs-line">    <span class="hljs-comment">//-&gt;边界判断:如果我在按照现有步长走一步,就已经超过边界了,此时的我们直接让元素运动到边界位置即可(结束动画)</span>
+</div><div class="hljs-line">    <span class="hljs-keyword">if</span> (curL + <span class="hljs-number">20</span> &gt;= maxLeft) {
+</div><div class="hljs-line">        utils.css(box, <span class="hljs-string">'left'</span>, maxLeft);
+</div><div class="hljs-line">        clearInterval(box.timer);
+</div><div class="hljs-line">        <span class="hljs-keyword">return</span>;
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">    utils.css(box, <span class="hljs-string">'left'</span>, curL + <span class="hljs-number">20</span>);
+</div><div class="hljs-line">}, <span class="hljs-number">17</span>);
+</div></code></pre>
+</blockquote>
+
+<hr>
+
+<p><strong>[时间固定的匀速动画]————-</strong></p>
+
+<blockquote>
+  <p><strong>t:time 当前已经走的时间</strong> <br>
+  <strong>b:begin 起始的位置</strong> <br>
+  <strong>c:change 总距离</strong> <br>
+  <strong>d:duration 总时间</strong></p>
+  
+  <p>计算出当前元素的位置</p>
+  
+  <pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">linear</span>(<span class="hljs-params">t, b, c, d</span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-keyword">return</span> t / d * c + b;
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> begin = utils.css(box, <span class="hljs-string">'left'</span>),
+</div><div class="hljs-line">    target = utils.win(<span class="hljs-string">'clientWidth'</span>) - box.offsetWidth,
+</div><div class="hljs-line">    change = target - begin,
+</div><div class="hljs-line">    duration = <span class="hljs-number">500</span>;
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> time = <span class="hljs-number">0</span>;
+</div><div class="hljs-line">box.timer = setInterval(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">    time += <span class="hljs-number">17</span>;
+</div><div class="hljs-line">    <span class="hljs-keyword">if</span> (time &gt;= duration) {
+</div><div class="hljs-line">    <span class="hljs-comment">//-&gt;已经走的时间大于等于总时间,我们应该结束动画</span>
+</div><div class="hljs-line">        utils.css(box, <span class="hljs-string">'left'</span>, target);
+</div><div class="hljs-line">        clearInterval(box.timer);
+</div><div class="hljs-line">        <span class="hljs-keyword">return</span>;
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">    <span class="hljs-keyword">var</span> curL = linear(time, begin, change, duration);
+</div><div class="hljs-line">    utils.css(box, <span class="hljs-string">'left'</span>, curL);
+</div><div class="hljs-line">}, <span class="hljs-number">17</span>);
+</div></code></pre>
+  
+  <p><strong>弹出层案例</strong></p>
+</blockquote>
+
+
+
+<pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-keyword">var</span> dialogBg = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'dialogBg'</span>),
+</div><div class="hljs-line">    dialog = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'dialog'</span>),
+</div><div class="hljs-line">    dialogClose = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'dialogClose'</span>);
+</div><div class="hljs-line">
+</div><div class="hljs-line"><span class="hljs-built_in">document</span>.body.onclick = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">    <span class="hljs-comment">//-&gt;让弹出层显示</span>
+</div><div class="hljs-line">    utils.css(dialogBg, <span class="hljs-string">'display'</span>, <span class="hljs-string">'block'</span>);
+</div><div class="hljs-line">    utils.css(dialog, <span class="hljs-string">'display'</span>, <span class="hljs-string">'block'</span>);
+</div><div class="hljs-line">
+</div><div class="hljs-line">    <span class="hljs-comment">//-&gt;让显示内容的提示框区域是从中间放大出来的</span>
+</div><div class="hljs-line">    animate(dialog, {
+</div><div class="hljs-line">        <span class="hljs-attr">width</span>: <span class="hljs-number">500</span>,
+</div><div class="hljs-line">        <span class="hljs-attr">height</span>: <span class="hljs-number">400</span>,
+</div><div class="hljs-line">        <span class="hljs-attr">marginLeft</span>: <span class="hljs-number">-250</span>,
+</div><div class="hljs-line">        <span class="hljs-attr">marginTop</span>: <span class="hljs-number">-200</span>,
+</div><div class="hljs-line">        <span class="hljs-attr">opacity</span>: <span class="hljs-number">1</span>
+</div><div class="hljs-line">    }, <span class="hljs-number">200</span>);
+</div><div class="hljs-line">};
+</div><div class="hljs-line">
+</div><div class="hljs-line">dialogClose.onclick = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">e</span>) </span>{
+</div><div class="hljs-line">    utils.css(dialogBg, <span class="hljs-string">'display'</span>, <span class="hljs-string">'none'</span>);
+</div><div class="hljs-line">
+</div><div class="hljs-line">    <span class="hljs-comment">//-&gt;首先让弹出层先慢慢的消失</span>
+</div><div class="hljs-line">    animate(dialog, {
+</div><div class="hljs-line">        <span class="hljs-attr">width</span>: <span class="hljs-number">0</span>,
+</div><div class="hljs-line">        <span class="hljs-attr">height</span>: <span class="hljs-number">0</span>,
+</div><div class="hljs-line">        <span class="hljs-attr">marginLeft</span>: <span class="hljs-number">0</span>,
+</div><div class="hljs-line">        <span class="hljs-attr">marginTop</span>: <span class="hljs-number">0</span>,
+</div><div class="hljs-line">        <span class="hljs-attr">opacity</span>: <span class="hljs-number">0</span>
+</div><div class="hljs-line">    }, <span class="hljs-number">200</span>);
+</div><div class="hljs-line">    <span class="hljs-comment">//-&gt;问题：当我们动画结束后，应该让其display=none才可以</span>
+</div><div class="hljs-line">
+</div><div class="hljs-line">    e = e || <span class="hljs-built_in">window</span>.event;
+</div><div class="hljs-line">    e.stopPropagation ? e.stopPropagation() : e.cancelBubble = <span class="hljs-literal">true</span>;<span class="hljs-comment">//-&gt;阻止事件的传播</span>
+</div><div class="hljs-line">};
+</div></code></pre></div></body></html>

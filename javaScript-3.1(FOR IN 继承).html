@@ -1,0 +1,123 @@
+<!DOCTYPE html><html><head><title>javaScript-3.1(FOR IN 继承)</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style>
+.note-content  {font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', STHeiti, 'Microsoft YaHei', 'WenQuanYi Micro Hei', SimSun, Song, sans-serif;}
+
+</style></head><body><div id='preview-contents' class='note-content'>
+                        
+                    
+
+
+
+<h2 id="javascript-31for-in-继承">javaScript-3.1(FOR IN 继承)</h2>
+
+<hr>
+
+<div><div class="toc"><div class="toc">
+<ul>
+<li><ul>
+<li><a href="#javascript-31for-in-继承">javaScript-3.1(FOR IN 继承)</a><ul>
+<li><ul>
+<li><a href="#for-in循环">for in循环</a></li>
+<li><a href="#继承">继承</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+<hr>
+
+
+
+<h4 id="for-in循环">for in循环</h4>
+
+<blockquote>
+  <p><strong>既可以遍历一个对象私有的属性和方法，也可以遍历到直接所属类的prototype上的属性和方法，但是不能遍历到某些属性（比如：内置属性，还有不可媒举的属性）</strong></p>
+</blockquote>
+
+
+
+<h4 id="继承">继承</h4>
+
+
+
+<pre class="prettyprint hljs-dark"><code class="hljs javascript"><div class="hljs-line">  <span class="hljs-comment">/*
+</span></div><div class="hljs-line">    function A() {
+</div><div class="hljs-line">        this.a="a";
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">    function B() {
+</div><div class="hljs-line">        this.b="b";
+</div><div class="hljs-line">        A.call(this);
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">    var b= new B;
+</div><div class="hljs-line">    console.log(b);
+</div><div class="hljs-line">    */
+</div><div class="hljs-line">
+</div><div class="hljs-line">
+</div><div class="hljs-line">    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">A</span>(<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">        <span class="hljs-keyword">this</span>.a=<span class="hljs-string">"a"</span>;
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">    A.prototype.getA=<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{};
+</div><div class="hljs-line">
+</div><div class="hljs-line">
+</div><div class="hljs-line">    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">B</span>(<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line">        <span class="hljs-keyword">this</span>.b=<span class="hljs-string">"b"</span>;
+</div><div class="hljs-line">        <span class="hljs-keyword">var</span> objA=<span class="hljs-keyword">new</span> A;
+</div><div class="hljs-line">        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">var</span> key <span class="hljs-keyword">in</span> objA){
+</div><div class="hljs-line">            <span class="hljs-comment">//this[key]=objA[key]</span>
+</div><div class="hljs-line">            <span class="hljs-keyword">if</span>(objA.hasOwnProperty(key)){
+</div><div class="hljs-line">                <span class="hljs-keyword">this</span>[key]=objA[key]
+</div><div class="hljs-line">            }<span class="hljs-keyword">else</span> {
+</div><div class="hljs-line">                <span class="hljs-comment">//this.__proto__[key]=objA[key];</span>
+</div><div class="hljs-line">                B.prototype[key]=objA[key]
+</div><div class="hljs-line">            }
+</div><div class="hljs-line">        }
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">    B.prototype.getB=<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{};
+</div><div class="hljs-line">    <span class="hljs-keyword">var</span> b= <span class="hljs-keyword">new</span> B;
+</div><div class="hljs-line">    <span class="hljs-built_in">console</span>.log(b);
+</div><div class="hljs-line">    <span class="hljs-comment">//B {b: "b", a: "a"}</span>
+</div><div class="hljs-line">
+</div><div class="hljs-line">
+</div><div class="hljs-line">    <span class="hljs-keyword">var</span> str=<span class="hljs-string">"1234"</span>;
+</div><div class="hljs-line">    <span class="hljs-keyword">var</span> ary=[<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>];
+</div><div class="hljs-line">    <span class="hljs-built_in">console</span>.log(<span class="hljs-built_in">Object</span>.getOwnPropertyDescriptor(str, <span class="hljs-string">"length"</span>));
+</div><div class="hljs-line">    <span class="hljs-comment">//Object {value: 4, writable: false, enumerable: false, configurable: false}</span>
+</div><div class="hljs-line">    <span class="hljs-built_in">console</span>.log(<span class="hljs-built_in">Object</span>.getOwnPropertyDescriptor(ary, <span class="hljs-string">"length"</span>));
+</div><div class="hljs-line">    <span class="hljs-comment">//Object {value: 3, writable: true, enumerable: false, configurable: false}</span>
+</div></code></pre>
+
+<hr>
+
+
+
+<pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line">B.prototype=<span class="hljs-built_in">Object</span>.assign(B.prototype,A.prototype);
+</div><div class="hljs-line"><span class="hljs-comment">//Object.assign（对象A，对象B），将对象A合并到对象B上，ES6语法，标准浏览器兼容，B没有的数据就给它添加上，B自己有的属性，不会被A的覆盖，</span>
+</div></code></pre>
+
+<hr>
+
+
+
+<pre class="prettyprint hljs-dark"><code class="hljs actionscript"><div class="hljs-line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">A</span><span class="hljs-params">()</span> </span>{
+</div><div class="hljs-line">        <span class="hljs-keyword">this</span>.a=<span class="hljs-string">"a"</span>;
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">    A.prototype.getA=<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> </span>{};
+</div><div class="hljs-line">
+</div><div class="hljs-line">    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">B</span><span class="hljs-params">()</span> </span>{
+</div><div class="hljs-line">        <span class="hljs-keyword">this</span>.b=<span class="hljs-string">"b"</span>;
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">    B.prototype.getB=<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> </span>{};
+</div><div class="hljs-line">    <span class="hljs-comment">//B.prototype.__proto__=A.prototype;</span>
+</div><div class="hljs-line">    B.prototype=<span class="hljs-keyword">new</span> A;
+</div><div class="hljs-line">    <span class="hljs-keyword">var</span>  b=<span class="hljs-keyword">new</span> B;
+</div><div class="hljs-line">    b.getA;
+</div><div class="hljs-line">    b.__proto__.__proto__.getA
+</div><div class="hljs-line">    b.a;
+</div><div class="hljs-line">    b.__proto__.a
+</div><div class="hljs-line">
+</div></code></pre></div></body></html>

@@ -1,0 +1,471 @@
+<!DOCTYPE html><html><head><title>javaScript-2.5(DOM,正则)</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style>
+.note-content  {font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', STHeiti, 'Microsoft YaHei', 'WenQuanYi Micro Hei', SimSun, Song, sans-serif;}
+
+</style></head><body><div id='preview-contents' class='note-content'>
+                        
+                    
+
+
+
+<h2 id="javascript-25dom正则">javaScript-2.5(DOM,正则)</h2>
+
+<hr>
+
+<div><div class="toc"><div class="toc">
+<ul>
+<li><ul>
+<li><a href="#javascript-25dom正则">javaScript-2.5(DOM,正则)</a><ul>
+<li><ul>
+<li><a href="#dom的映射机制">DOM的映射机制</a></li>
+<li><a href="#正则">正则</a></li>
+<li><a href="#元字符和修饰符">元字符和修饰符</a></li>
+<li><a href="#常用的正则表达式">常用的正则表达式</a><ul>
+<li><ul>
+<li><a href="#中括号的一些细节问题">中括号的一些细节问题</a></li>
+<li><a href="#小括号分组的一些作用和细节">小括号分组的一些作用和细节</a></li>
+<li><a href="#正则的捕获">正则的捕获</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#常用的正则表达式-1">常用的正则表达式</a></li>
+<li><a href="#正则的捕获-1">正则的捕获</a></li>
+<li><a href="#运算符优先级">运算符优先级</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+<hr>
+
+
+
+<h4 id="dom的映射机制">DOM的映射机制</h4>
+
+<blockquote>
+  <p>在JS中获取的DOM元素或者元素集合，和HTML页面上的元素标签是存在<code>映射关系</code>的</p>
+  
+  <blockquote>
+    <p><strong>个人理解：</strong>所谓映射关系，因为DOM元素或者元素集合石引用数据类型的，改变的都是这个大地址里面的元素，所以所有引用这个大地址的变量，都存在映射，</p>
+  </blockquote>
+  
+  <ul><li>JS中把DOM元素进行修改，页面中的元素样式也会跟着改变</li>
+  <li>页面中元素的结构发生改变，JS中的DOM元素也会跟着改变</li>
+  </ul>
+</blockquote>
+
+
+
+<pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-number">1.</span><span class="hljs-keyword">var</span> stuList = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'stuList'</span>),
+</div><div class="hljs-line"><span class="hljs-number">2.</span>    stuBody = stuList.tBodies[<span class="hljs-number">0</span>],
+</div><div class="hljs-line"><span class="hljs-number">3.</span>    stuRows = stuBody.rows;
+</div><div class="hljs-line"><span class="hljs-number">4.</span><span class="hljs-comment">//-&gt;开始的时候页面中没有TR,所以stuRows是一个空的类数组</span>
+</div><div class="hljs-line"><span class="hljs-number">5.</span>
+</div><div class="hljs-line"><span class="hljs-number">6.</span>~<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+</div><div class="hljs-line"><span class="hljs-number">7.</span>    <span class="hljs-comment">//-&gt;GET DATA</span>
+</div><div class="hljs-line"><span class="hljs-number">8.</span>    ...
+</div><div class="hljs-line"><span class="hljs-number">9.</span>
+</div><div class="hljs-line"><span class="hljs-number">10.</span>    <span class="hljs-comment">//-&gt;BIND DATA</span>
+</div><div class="hljs-line"><span class="hljs-number">11.</span>    <span class="hljs-keyword">var</span> str = <span class="hljs-string">``</span>;
+</div><div class="hljs-line"><span class="hljs-number">12.</span>    ...
+</div><div class="hljs-line"><span class="hljs-number">13.</span>    stuBody.innerHTML = str; <span class="hljs-comment">//-&gt;向页面中增加了20个TR</span>
+</div><div class="hljs-line"><span class="hljs-number">14.</span>
+</div><div class="hljs-line"><span class="hljs-number">15.</span>    <span class="hljs-built_in">console</span>.log(stuRows); <span class="hljs-comment">//-&gt;页面中TBODY结构中的内容改变了,根据DOM的映射机制,此处不需要重新的获取,stuRows中存储的就是最新的20条数据</span>
+</div><div class="hljs-line"><span class="hljs-number">16.</span>}();
+</div></code></pre>
+
+
+
+<pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line">stuBody=stuList.tBodies[<span class="hljs-number">0</span>],
+</div><div class="hljs-line">stuHeadList=stuHead.getElementsByTagName(<span class="hljs-string">'th'</span>),
+</div><div class="hljs-line">stuRows=stuBody.rows;
+</div></code></pre>
+
+<p>//两个未知条件，通过假设一个为已知，求出另一个，</p>
+
+
+
+<h4 id="正则">正则</h4>
+
+<blockquote>
+  <p>用来处理字符串的规则 <br>
+  <code>验证当前的字符串是否符合规则</code>–<code>匹配</code> <br>
+  <code>把字符串中符合规则的字符捕获到</code>–<code>捕获</code> </p>
+  
+  <p>正则匹配：<code>[正则].test([字符串])</code> <br>
+  正则捕获：<code>[正则].exec([字符串])</code>或者<code>[字符串].match([正则])</code>或者<code>[字符串].replace([正则]，function。。。)</code>或者<code>[字符串].split([正则])</code>。。。</p>
+</blockquote>
+
+
+
+<h4 id="元字符和修饰符">元字符和修饰符</h4>
+
+<blockquote>
+  <p>一个正则就是由元字符和修饰符组成的，想要要学会编写自己所需的规则，需要牢牢掌握元字符和修饰符</p>
+</blockquote>
+
+<p><code>修饰符</code></p>
+
+<ul><li>i（ignoreCase）：忽略单词大小写匹配</li>
+<li>m（multiline）：多行匹配</li>
+<li>g（global）：全局匹配 <br>
+。。。</li>
+</ul>
+
+
+
+<pre class="prettyprint hljs-dark"><code class="language-javascripts"><div class="hljs-line"><span class="hljs-comment line-number">1.</span>//-&gt;修饰符放在最后一个斜杠的后面
+</div><div class="hljs-line"><span class="hljs-comment line-number">2.</span>var reg=/^\d+$/img;
+</div><div class="hljs-line"><span class="hljs-comment line-number">3.</span>
+</div><div class="hljs-line"><span class="hljs-comment line-number">4.</span>//-&gt;实例创建方式中，修饰符放在第二个实参字符串中
+</div><div class="hljs-line"><span class="hljs-comment line-number">5.</span>var reg=new RegExp（'','img'）;
+</div></code></pre>
+
+<p><strong><code>特殊元字符</code></strong></p>
+
+<ul><li>\：转义字符：把普通元字符转换为特殊的意义或者把特殊元字符转换为普通的意义，例如：<code>/\d/  d本身是一个字母，前面加一个转义字符，代表0~9之间的一个数字</code>或者<code>/\./  点在正则中代表任意字符（特殊含义），此处加上转义字符，代表的就是本身意思点了</code></li>
+<li>^：以某一个元字符开始，例如：<code>/^1/  代表当前的字符串应该是以1开始的</code></li>
+<li>$：以某一个元字符结束，例如：<code>/2$/  代表当前字符串最后一个字符应该是以2结尾</code></li>
+<li>\d：代表一个0~9之间的数字</li>
+<li>\D：和\d正好相反，代表一个非0~9之间的任意字符（大写字母都和小写字母的是相反的）</li>
+<li>\w：数字，字母，下划线三者中的任意一个  /^[0-9a-zA-Z_]$/</li>
+<li>\n：匹配一个换行符</li>
+<li>\b：匹配一个边界</li>
+<li>\s：匹配一个空白字符</li>
+<li>.：除了\n以外的任意一个字符</li>
+<li>x|y：x或者y中的一个字符</li>
+<li>()：分组</li>
+<li>[a-z]:匹配一个a-z中的任意字符<code>/[0~9]/  0~9之间的任何一个数字，等价于\d</code></li>
+<li>[^a-z]：除了a-z以外的任意一个字符，这里^是取反的意思</li>
+<li>[xyz]：x或者y或者z，三者中的一个</li>
+<li>[^xyz]：除了三者以外的任意一个字符</li>
+<li>?=：正向预查</li>
+<li>?!：负向预查</li>
+<li>?:：只匹配不捕获 <br>
+<strong><code>量词元字符</code></strong></li>
+<li>*：前面的元字符出现零次到多次</li>
+<li>+：前面的元字符出现一次到多次</li>
+<li>?：前面的元字符出现零次或者一次</li>
+<li>{n}：出现n次</li>
+<li>{n,}：出现n到多次</li>
+<li>{n,m}：出现n到m次</li>
+</ul>
+
+<p><code>元字符</code></p>
+
+
+
+<pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-comment">//-&gt;两个斜杠中间包起来的都是正则的元字符</span>
+</div><div class="hljs-line"><span class="hljs-comment">//-&gt;1，特殊元字符：有特殊含义的</span>
+</div><div class="hljs-line"><span class="hljs-comment">//-&gt;2，量词元字符：代表出现多少次</span>
+</div><div class="hljs-line"><span class="hljs-comment">//-&gt;3，普通元字符：代表本身含义的</span>
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> reg=<span class="hljs-regexp">/^\d+$/g</span>;
+</div><div class="hljs-line">
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> reg=<span class="hljs-keyword">new</span> <span class="hljs-built_in">RegExp</span>（<span class="hljs-string">'[元字符]'</span>，<span class="hljs-string">'[修饰符]'</span>）；
+</div></code></pre>
+
+
+
+<h4 id="常用的正则表达式">常用的正则表达式</h4>
+
+
+
+<h6 id="中括号的一些细节问题">中括号的一些细节问题</h6>
+
+
+
+<pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-number">1.</span><span class="hljs-comment">//-&gt;中括号里面出现的多位数字，不是多位数，而是数字中出现的任意一个</span>
+</div><div class="hljs-line"><span class="hljs-number">2.</span><span class="hljs-keyword">var</span> reg = <span class="hljs-regexp">/^[18]$/</span>; <span class="hljs-comment">//-&gt;1或者8中的一个数字</span>
+</div><div class="hljs-line"><span class="hljs-number">3.</span><span class="hljs-keyword">var</span> reg = <span class="hljs-regexp">/^[16-85]$/</span>; <span class="hljs-comment">//-&gt;1或者6-8或者5，三者中的一个数字</span>
+</div><div class="hljs-line"><span class="hljs-number">4.</span>
+</div><div class="hljs-line"><span class="hljs-number">5.</span><span class="hljs-comment">//-&gt;\w使用中括号的方式表达：数字、字母、下划线</span>
+</div><div class="hljs-line"><span class="hljs-number">6.</span><span class="hljs-keyword">var</span> reg = <span class="hljs-regexp">/^[0-9a-zA-Z_]$/</span>;
+</div><div class="hljs-line"><span class="hljs-number">7.</span>
+</div><div class="hljs-line"><span class="hljs-number">8.</span><span class="hljs-comment">//-&gt;中括号中出现的元字符一般都是自己本身的意思(即时具备特殊的意思，很多元字符也都自动变为本身的意思了)</span>
+</div><div class="hljs-line"><span class="hljs-number">9.</span><span class="hljs-keyword">var</span> reg = <span class="hljs-regexp">/^[+-.\d?]$/</span>; <span class="hljs-comment">//-&gt;除了\d依然代表的是0~9中的一个数字，其余的都是代表本身的意思</span>
+</div></code></pre>
+
+
+
+<h6 id="小括号分组的一些作用和细节">小括号分组的一些作用和细节</h6>
+
+
+
+<pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-number">1.</span><span class="hljs-comment">/*
+</span></div><div class="hljs-line">2. * var reg = /^18|19$/; 
+</div><div class="hljs-line">3. * //-&gt;按照我们本身的理解，应该是18或者19两个中的任意一个，符合x|y这个元字符的规则
+</div><div class="hljs-line">4. * //-&gt;但是现实不是这样的，上面的规则，18/19/181/189/119/819...都符合，它识别和处理的规则特别乱
+</div><div class="hljs-line">5. * var reg = /^(18|19)$/; //-&gt;当我们使用分组把它包起来的时候就好了，现在只能匹配18或者19了，其余的都不可以
+</div><div class="hljs-line">6. */
+</div><div class="hljs-line"><span class="hljs-number">7.</span>=&gt;正则中分组<span class="hljs-string">`()`</span>的第一个作用：改变默认的优先级
+</div><div class="hljs-line"><span class="hljs-number">8.</span>
+</div><div class="hljs-line"><span class="hljs-number">9.</span>=&gt;分组的第二个作用是：分组引用
+</div><div class="hljs-line"><span class="hljs-number">10.</span><span class="hljs-comment">//-&gt;\1 或者 \2 或者 \数字</span>
+</div><div class="hljs-line"><span class="hljs-number">11.</span><span class="hljs-comment">//代表个对应分组出现一模一样的内容，也就是\1代表和第一个分组出现的内容一模一样</span>
+</div><div class="hljs-line"><span class="hljs-number">12.</span><span class="hljs-keyword">var</span> reg = <span class="hljs-regexp">/^([a-z])([a-z])\2\1$/</span>;
+</div><div class="hljs-line"><span class="hljs-number">13.</span><span class="hljs-comment">//-&gt;oppo moom noon toot ...</span>
+</div><div class="hljs-line"><span class="hljs-number">14.</span>
+</div><div class="hljs-line"><span class="hljs-number">15.</span>=&gt;分组的第三个作用：分组捕获
+</div></code></pre>
+
+
+
+<pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-number">1.</span><span class="hljs-comment">/*
+</span></div><div class="hljs-line">2. * 1、手机号码(简单)
+</div><div class="hljs-line">3. * -&gt;以1开头
+</div><div class="hljs-line">4. * -&gt;11位数字
+</div><div class="hljs-line">5.*/
+</div><div class="hljs-line"><span class="hljs-number">6.</span><span class="hljs-keyword">var</span> reg = <span class="hljs-regexp">/^1\d{10}$/</span>;<span class="hljs-comment">//-&gt;同时加了^和$，次正则可以理解为只能是某某某规则；如果两个都不加，只要字符串中有一部分符合这个规则即可</span>
+</div><div class="hljs-line"><span class="hljs-number">7.</span>
+</div><div class="hljs-line"><span class="hljs-number">8.</span><span class="hljs-comment">/*
+</span></div><div class="hljs-line">9. * 2、验证年龄：18~65
+</div><div class="hljs-line">10. * -&gt; 18或者19
+</div><div class="hljs-line">11. * -&gt; 20~59
+</div><div class="hljs-line">12. * -&gt; 60~65
+</div><div class="hljs-line">13. * 分三个阶段完成操作
+</div><div class="hljs-line">14. */
+</div><div class="hljs-line"><span class="hljs-number">15.</span><span class="hljs-keyword">var</span> reg = <span class="hljs-regexp">/^((18|19)|([2-5]\d)|(6[0-5]))$/</span>;
+</div><div class="hljs-line"><span class="hljs-number">16.</span>
+</div><div class="hljs-line"><span class="hljs-number">17.</span><span class="hljs-comment">/*
+</span></div><div class="hljs-line">18. * 3、验证中文姓名的
+</div><div class="hljs-line">19. * -&gt; 只能是中文汉字 
+</div><div class="hljs-line">20. *  第一个汉字的ASCII码:\u4E00
+</div><div class="hljs-line">21. *  最后一个汉字ASCII码:\u9FA5
+</div><div class="hljs-line">22. * -&gt; 正常一般都是2~4位 
+</div><div class="hljs-line">23. */
+</div><div class="hljs-line"><span class="hljs-number">24.</span><span class="hljs-keyword">var</span> reg = <span class="hljs-regexp">/^[\u4E00-\u9FA5]{2,4}$/</span>;
+</div><div class="hljs-line"><span class="hljs-number">25.</span>reg = <span class="hljs-regexp">/^[\u4E00-\u9FA5]{2,5}(·[\u4E00-\u9FA5]{2,5})?$/</span>; <span class="hljs-comment">//-&gt;支持：大卫·贝克汉姆 这种英文译名</span>
+</div><div class="hljs-line"><span class="hljs-number">26.</span>
+</div><div class="hljs-line"><span class="hljs-number">27.</span><span class="hljs-comment">/*
+</span></div><div class="hljs-line">28. * 4、验证是否为有效数字的
+</div><div class="hljs-line">29. * -&gt; 可能出现-，也可能不出现
+</div><div class="hljs-line">30. * -&gt; 一位数可以是零，多位数零不能作为开头
+</div><div class="hljs-line">31. * -&gt; 小数部分可能有可能没有，如果一但有，小数点后面必须有数字
+</div><div class="hljs-line">32. */
+</div><div class="hljs-line"><span class="hljs-number">33.</span><span class="hljs-keyword">var</span> reg = <span class="hljs-regexp">/^-?(\d|([1-9]\d+))(\.\d+)?$/</span>;
+</div><div class="hljs-line"><span class="hljs-number">34.</span>
+</div><div class="hljs-line"><span class="hljs-number">35.</span><span class="hljs-comment">/*
+</span></div><div class="hljs-line">36. * 5、验证身份证号码
+</div><div class="hljs-line">37. * -&gt; 简单：前17位是数字，最后一位数字或者X
+</div><div class="hljs-line">38. * -&gt; 完善：我们需要在身份证中获取到 省市县、出生年月日、性别 等信息
+</div><div class="hljs-line">39. */
+</div><div class="hljs-line"><span class="hljs-number">40.</span><span class="hljs-comment">//var reg = /^\d{17}(\d|X)$/;</span>
+</div><div class="hljs-line"><span class="hljs-number">41.</span><span class="hljs-keyword">var</span> reg = <span class="hljs-regexp">/^(\d{6})(\d{4})(\d{2})(\d{2})\d{2}(\d)(?:\d|X)$/</span>;
+</div><div class="hljs-line"><span class="hljs-number">42.</span><span class="hljs-comment">//-&gt;把需要单独获取的部分用分组包起来，正则捕获的时候可以捕获到分组中的内容，如果加了分组，但是不想捕获，在该分组前面加 ?: 即可(只匹配不捕获)</span>
+</div><div class="hljs-line"><span class="hljs-number">43.</span>
+</div><div class="hljs-line"><span class="hljs-number">44.</span><span class="hljs-comment">/*
+</span></div><div class="hljs-line">45. * 6、验证邮箱的
+</div><div class="hljs-line">46. */
+</div><div class="hljs-line"><span class="hljs-number">47.</span><span class="hljs-keyword">var</span> reg = <span class="hljs-regexp">/^\w+((-\w+)|(\.\w+))*@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/</span>;
+</div></code></pre>
+
+
+
+<h6 id="正则的捕获">正则的捕获</h6>
+
+<blockquote>
+  <p>exec：可以实现正则的捕获，每一次执行exec只能捕获到一个匹配的结果，而且结果是一个数组</p>
+  
+  <p>第一项：当前正则捕获的内容(字符串)  <br>
+  index：当前正则捕获的起始索引  <br>
+  input：当前操作的原始字符串</p>
+</blockquote>
+
+
+
+<pre class="prettyprint hljs-dark"><code class="hljs xl"><div class="hljs-line"><span class="hljs-number">1</span>.<span class="hljs-function"><span class="hljs-title">var</span> reg = /\d+/; //-&gt;</span>包含<span class="hljs-number">1</span>到多个数字
+</div><div class="hljs-line"><span class="hljs-number">2</span>.var str = <span class="hljs-string">'zhufeng2017peixun2018'</span>;
+</div><div class="hljs-line"><span class="hljs-number">3</span>.<span class="hljs-function"><span class="hljs-title">reg</span>.exec(str); //-&gt;</span>[<span class="hljs-string">"2017"</span>, index: <span class="hljs-number">7</span>, input: <span class="hljs-string">"zhufeng2017peixun2018"</span>]
+</div><div class="hljs-line"><span class="hljs-number">4</span>.<span class="hljs-function"><span class="hljs-title">reg</span>.exec(str); //-&gt;</span>[<span class="hljs-string">"2017"</span>...]
+</div><div class="hljs-line"><span class="hljs-number">5</span>.
+</div><div class="hljs-line"><span class="hljs-number">6</span>.<span class="hljs-comment">/*
+</span></div><div class="hljs-line">7. * 问题：当前正则执行一次exec只能捕获到一个匹配的内容，我执行两次exec，第二次捕获到的依然在还是第一次的结果，不管执行多少次exec，捕获到的依然都是第一个   
+</div><div class="hljs-line">8. * =&gt;“正则捕获的懒惰性”
+</div><div class="hljs-line">9. * 
+</div><div class="hljs-line">10. * lastIndex：下一次正则捕获的时候，在字符串中查找的开始位置索引
+</div><div class="hljs-line">11. * 第一次查找之前，reg.lastIndex=0，也就是第一次是从字符串的开始位置查找的，所以找到的是2017
+</div><div class="hljs-line">12. * 第一次执行exec结束后，reg.lastIndex值还是0，所以第二次依然是从字母串的开始位置找的，找到的当然还是2017
+</div><div class="hljs-line">13. * ...
+</div><div class="hljs-line">14. *  
+</div><div class="hljs-line">15. * 解决正则的懒惰性：
+</div><div class="hljs-line">16. * 执行exec后，让lastIndex值变为当前这一次捕获的结束位置，这样下一次捕获的时候，就可以接着继续查找了(而不是从头开始了)
+</div><div class="hljs-line">17. * =&gt;我们只需要给正则加一个全局修饰符g，就可以在每一次执行exec后，自动修改它的lastIndex了
+</div><div class="hljs-line">18. */
+</div><div class="hljs-line"><span class="hljs-number">19</span>.var reg = /\d+/g;
+</div><div class="hljs-line"><span class="hljs-number">20</span>.var str = <span class="hljs-string">'zhufeng2017peixun2018'</span>;
+</div><div class="hljs-line"><span class="hljs-number">21</span>.
+</div><div class="hljs-line"><span class="hljs-number">22</span>.<span class="hljs-function"><span class="hljs-title">reg</span>.lastIndex -&gt;</span><span class="hljs-number">0</span>
+</div><div class="hljs-line"><span class="hljs-number">23</span>.<span class="hljs-function"><span class="hljs-title">reg</span>.exec(str); -&gt;</span>[<span class="hljs-string">'2017'</span>...]
+</div><div class="hljs-line"><span class="hljs-number">24</span>.
+</div><div class="hljs-line"><span class="hljs-number">25</span>.<span class="hljs-function"><span class="hljs-title">reg</span>.lastIndex -&gt;</span><span class="hljs-number">11</span>
+</div><div class="hljs-line"><span class="hljs-number">26</span>.<span class="hljs-function"><span class="hljs-title">reg</span>.exec(str); -&gt;</span>[<span class="hljs-string">'2018'</span>...]
+</div><div class="hljs-line"><span class="hljs-number">27</span>.
+</div><div class="hljs-line"><span class="hljs-number">28</span>.<span class="hljs-function"><span class="hljs-title">reg</span>.lastIndex -&gt;</span><span class="hljs-number">21</span>
+</div><div class="hljs-line"><span class="hljs-number">29</span>.<span class="hljs-function"><span class="hljs-title">reg</span>.exec(str); -&gt;</span>null 捕获不到
+</div><div class="hljs-line"><span class="hljs-number">30</span>.
+</div><div class="hljs-line"><span class="hljs-number">31</span>.<span class="hljs-function"><span class="hljs-title">reg</span>.lastIndex -&gt;</span><span class="hljs-number">0</span>
+</div><div class="hljs-line"><span class="hljs-number">32</span>.<span class="hljs-function"><span class="hljs-title">reg</span>.exec(str); -&gt;</span>[<span class="hljs-string">'2017'</span>...]
+</div><div class="hljs-line"><span class="hljs-number">33</span>.
+</div><div class="hljs-line"><span class="hljs-number">34</span>.<span class="hljs-comment">/*
+</span></div><div class="hljs-line">35. * 上面的案例中，我们知道执行两次就可以捕获全了，但是如果你不知道具体要捕获多少次，我们该如何是好？
+</div><div class="hljs-line">36. * =&gt; 接下来我们自己在RegExp的原型上扩展一个方法myExecAll，执行这个方法，可以把所有匹配的一次性都捕获到
+</div><div class="hljs-line">37. */
+</div><div class="hljs-line"><span class="hljs-number">38</span>.<span class="hljs-comment">//-&gt;str:需要捕获的原始字符串</span>
+</div><div class="hljs-line"><span class="hljs-number">39</span>.<span class="hljs-built_in">RegExp</span>.prototype.myExecAll = function myExecAll(str){
+</div><div class="hljs-line"><span class="hljs-number">40</span>.     <span class="hljs-comment">//-&gt;this:reg</span>
+</div><div class="hljs-line"><span class="hljs-number">41</span>.     <span class="hljs-comment">//-&gt;为了防止不加g的时候，每一次捕获的都是第一个，导致死循环，我们在正则没有加g的时候执行一次即可</span>
+</div><div class="hljs-line"><span class="hljs-number">42</span>.     <span class="hljs-keyword">if</span>(!this.global){
+</div><div class="hljs-line"><span class="hljs-number">43</span>.         <span class="hljs-comment">//-&gt;没有加g:执行一次exec即可</span>
+</div><div class="hljs-line"><span class="hljs-number">44</span>.         return this.exec(str);
+</div><div class="hljs-line"><span class="hljs-number">45</span>.     }
+</div><div class="hljs-line"><span class="hljs-number">46</span>.     <span class="hljs-comment">//-&gt;已经加g了</span>
+</div><div class="hljs-line"><span class="hljs-number">47</span>.     <span class="hljs-function"><span class="hljs-title">var</span> ary = []; //-&gt;</span>存储所有捕获的结果
+</div><div class="hljs-line"><span class="hljs-number">48</span>.     var res = this.exec(str);
+</div><div class="hljs-line"><span class="hljs-number">49</span>.     <span class="hljs-keyword">while</span>(res){
+</div><div class="hljs-line"><span class="hljs-number">50</span>.         <span class="hljs-function"><span class="hljs-title">ary</span>[ary.length]=res[0];//-&gt;</span>把每一次捕获的结果存放在数组的末尾
+</div><div class="hljs-line"><span class="hljs-number">51</span>.         res = this.exec(str);
+</div><div class="hljs-line"><span class="hljs-number">52</span>.     }
+</div><div class="hljs-line"><span class="hljs-number">53</span>.     return ary;
+</div><div class="hljs-line"><span class="hljs-number">54</span>.}
+</div><div class="hljs-line"><span class="hljs-number">55</span>.
+</div><div class="hljs-line"><span class="hljs-number">56</span>.<span class="hljs-comment">/*
+</span></div><div class="hljs-line">57. * 生活如此美好，何必这么麻烦和纠结
+</div><div class="hljs-line">58. * 字符串中有一个方法叫做match，执行这个方法，也可以把所有匹配的内容，一次性捕获到，但是前提正则也需要加g，不加g，也只能捕获第一个
+</div><div class="hljs-line">59. */
+</div><div class="hljs-line"><span class="hljs-number">60</span>.var reg = /\d+/g; 
+</div><div class="hljs-line"><span class="hljs-number">61</span>.var str = <span class="hljs-string">'zhufeng2017peixun2018hahah2019heheh2020'</span>;
+</div><div class="hljs-line"><span class="hljs-number">62</span>.<span class="hljs-function"><span class="hljs-title">str</span>.match(reg); //-&gt;</span>[<span class="hljs-string">'2017'</span>,<span class="hljs-string">'2018'</span>,<span class="hljs-string">'2019'</span>,<span class="hljs-string">'2020'</span>]
+</div><div class="hljs-line"><span class="hljs-number">63</span>.
+</div><div class="hljs-line"><span class="hljs-number">64</span>.<span class="hljs-comment">/*
+</span></div><div class="hljs-line">65. * 难道生活如此简单吗？
+</div><div class="hljs-line">66. * match虽然很简单暴力，但是在需要捕获小分组内容的时候，就不太符合我们的需求了，因为match只能把大正则匹配捕获到，对于小分组匹配的无法捕获
+</div><div class="hljs-line">67. */
+</div><div class="hljs-line"><span class="hljs-number">68</span>.var ary = [<span class="hljs-string">'zxt'</span>,<span class="hljs-number">28</span>]; 
+</div><div class="hljs-line"><span class="hljs-number">69</span>.var str = <span class="hljs-string">'my name is {0}，i am {1} years old~~'</span>;
+</div><div class="hljs-line"><span class="hljs-number">70</span>.<span class="hljs-comment">//-&gt;我们想把 {0} 替换成 ary[0]</span>
+</div><div class="hljs-line"><span class="hljs-number">71</span>.<span class="hljs-comment">//-&gt;我们想把 {1} 替换成 ary[1]</span>
+</div><div class="hljs-line"><span class="hljs-number">72</span>.<span class="hljs-comment">//-&gt;我们既要捕获到 {数字}，也需要把里面的数字单独的获取到(因为这个数字可以充当我们在数组中获取内容的索引)</span>
+</div><div class="hljs-line"><span class="hljs-number">73</span>.<span class="hljs-function"><span class="hljs-title">var</span> reg = /\{(\d+)\}/g; //-&gt;</span>大正则匹配的是‘一个大括号中包含数字’，第一个小分组匹配的是‘大括号中的那个数字’
+</div><div class="hljs-line"><span class="hljs-number">74</span>.
+</div><div class="hljs-line"><span class="hljs-number">75</span>.<span class="hljs-function"><span class="hljs-title">reg</span>.exec(str); //-&gt;</span>[<span class="hljs-string">"{0}"</span>, <span class="hljs-string">"0"</span>...] 第一项大正则匹配的结果，第二项第一个分组匹配的结果 ，也就是使用exec可以捕获到小分组匹配的内容
+</div><div class="hljs-line"><span class="hljs-number">76</span>.<span class="hljs-function"><span class="hljs-title">reg</span>.exec(str); //-&gt;</span>[<span class="hljs-string">"{1}"</span>, <span class="hljs-string">"1"</span>...]
+</div><div class="hljs-line"><span class="hljs-number">77</span>.
+</div><div class="hljs-line"><span class="hljs-number">78</span>.<span class="hljs-function"><span class="hljs-title">str</span>.match(reg); //-&gt;</span>[<span class="hljs-string">"{0}"</span>, <span class="hljs-string">"{1}"</span>] 使用match只能捕获到大正则匹配的，小分组匹配的获取不到
+</div><div class="hljs-line"><span class="hljs-number">79</span>.
+</div><div class="hljs-line"><span class="hljs-number">80</span>.<span class="hljs-comment">/*
+</span></div><div class="hljs-line">81. * match并不是所有情况下，都捕获不到分组的内容，当只需要捕获一次就可以完成的时候(或者不加g的时候)，match获取的结果和exec一样
+</div><div class="hljs-line">82. */
+</div><div class="hljs-line"><span class="hljs-number">83</span>.<span class="hljs-function"><span class="hljs-title">var</span> reg = /^(\d{6})(\d{4})(\d{2})(\d{2})\d{2}(\d{1})(?:\d|X)$/; //-&gt;</span>身份证号码的正则
+</div><div class="hljs-line"><span class="hljs-number">84</span>.var str = <span class="hljs-string">'130828198802240761'</span>;
+</div><div class="hljs-line"><span class="hljs-number">85</span>.<span class="hljs-function"><span class="hljs-title">str</span>.match(reg); //-&gt;</span>[<span class="hljs-string">"130828198802240761"</span>, <span class="hljs-string">"130828"</span>, <span class="hljs-string">"1988"</span>, <span class="hljs-string">"02"</span>, <span class="hljs-string">"24"</span>, <span class="hljs-string">"6"</span>...]
+</div><div class="hljs-line"><span class="hljs-number">86</span>.
+</div><div class="hljs-line"><span class="hljs-number">87</span>.<span class="hljs-comment">/*
+</span></div><div class="hljs-line">88. * test在某些时候，也是实现捕获的：test匹配的时候，也是把符合的找到了，我们就可以使用一些特殊的手段，把查找的内容取出来
+</div><div class="hljs-line">89. */
+</div><div class="hljs-line"><span class="hljs-number">90</span>.var str = <span class="hljs-string">'my name is {0}，i am {1} years old~~'</span>;
+</div><div class="hljs-line"><span class="hljs-number">91</span>.var reg = /\{(\d+)\}/g;
+</div><div class="hljs-line"><span class="hljs-number">92</span>.
+</div><div class="hljs-line"><span class="hljs-number">93</span>.reg.test(str);
+</div><div class="hljs-line"><span class="hljs-number">94</span>.<span class="hljs-function"><span class="hljs-title">console</span>.<span class="hljs-built_in">log</span>(<span class="hljs-built_in">RegExp</span>.$1);//-&gt;</span>获取第一次捕获的时候,第一个分组中的内容($<span class="hljs-number">1</span>) =&gt;<span class="hljs-string">'0'</span>
+</div><div class="hljs-line"><span class="hljs-number">95</span>.
+</div><div class="hljs-line"><span class="hljs-number">96</span>.reg.test(str);
+</div><div class="hljs-line"><span class="hljs-number">97</span>.console.<span class="hljs-built_in">log</span>(<span class="hljs-built_in">RegExp</span>.$<span class="hljs-number">1</span>); <span class="hljs-comment">//=&gt;'1' 并且执行test,如果设置了g，也是可以修改lastIndex的</span>
+</div><div class="hljs-line"><span class="hljs-number">98</span>.
+</div><div class="hljs-line"><span class="hljs-number">99</span>.<span class="hljs-function"><span class="hljs-title">reg</span>.exec(str); //-&gt;</span>null
+</div></code></pre>
+
+<blockquote>
+  <p><strong>上面是正则捕获：懒惰性，正则捕获还有一个特点：贪婪性</strong></p>
+</blockquote>
+
+
+
+<pre class="prettyprint hljs-dark"><code class="hljs javascript"><div class="hljs-line"><span class="hljs-comment">/*
+</span></div><div class="hljs-line"> *1,手机号码
+</div><div class="hljs-line"> *-
+</div><div class="hljs-line"> */
+</div><div class="hljs-line"> <span class="hljs-keyword">var</span> reg=<span class="hljs-regexp">/^1\d{10}/</span>;  <span class="hljs-comment">//同时加了^和$，此正则可以理解为只能是某某某规则：如果两个都不加，只要字符串中有一部分符合这个规则即可</span>
+</div><div class="hljs-line">
+</div><div class="hljs-line"><span class="hljs-comment">//验证年龄：18~65之间</span>
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> reg=<span class="hljs-regexp">/^[18-65]$/</span>
+</div></code></pre>
+
+<p>作业：  <br>
+1、复习（第一周和第二周掌握不扎实的都要好好的复习）  <br>
+2、表格排序案例 （重要）  <br>
+3、正则基础的复习，回去后看视频  <br>
+第二周(第三节) 课时7/9/10 11是我们补课的</p>
+
+<p>补课时间  <br>
+1-下周二：继承  <br>
+2-下周三：数据类型检测  <br>
+7:30 ~ 9:30</p>
+
+<p>预习：  <br>
+下周重点：JS盒子模型、图片延迟加载、DOM库…</p>
+
+
+
+<h4 id="常用的正则表达式-1">常用的正则表达式</h4>
+
+<p><strong>中括号的一些细节问题</strong></p>
+
+
+
+<pre class="prettyprint hljs-dark"><code class="hljs javascript"><div class="hljs-line"><span class="hljs-comment">//-&gt;中括号里面出现的多位数字，不是多位数，而是数字中出现的任意一个</span>
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> reg=<span class="hljs-regexp">/^[18]$/</span>;<span class="hljs-comment">//-&gt;1或者8中的一个数字</span>
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> reg=<span class="hljs-regexp">/^[16-85]$/</span>;<span class="hljs-comment">//-&gt;1或者6-8或者5，三者中的一个数字</span>
+</div><div class="hljs-line">
+</div><div class="hljs-line"><span class="hljs-comment">//-&gt;\w使用中括号的方式表达：数字，字母，下划线</span>
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> reg=<span class="hljs-regexp">/^[0-9a-zA-Z_]$/</span>;
+</div><div class="hljs-line">
+</div><div class="hljs-line"><span class="hljs-comment">//-&gt;中括号中出现的元字符一般都是自己本身的意思（即使具备特殊的意思，很多元字符也都自动变为本身的意思了）</span>
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> reg=<span class="hljs-regexp">/^[+-.\d?]$/</span>;<span class="hljs-comment">//-&gt;除了\d依然代表的是0~9中的一个数字，其余的都是代表本身的意思</span>
+</div></code></pre>
+
+<p><strong>小括号的一些作用和细节</strong></p>
+
+
+
+<pre class="prettyprint hljs-dark"><code class="hljs excel"><div class="hljs-line"><span class="hljs-built_in">var</span> reg=/^<span class="hljs-number">18</span>|<span class="hljs-number">19</span>$/；//-&gt;按照我们本身的理解，应该是<span class="hljs-number">18</span>或者<span class="hljs-number">19</span>的两个中的任意一个，符合x|y这个元字符的规则
+</div><div class="hljs-line">//-&gt;但是现实不是这样的，上面的规则，<span class="hljs-number">18</span>/<span class="hljs-number">19</span>/<span class="hljs-number">181</span>/<span class="hljs-number">189</span>/<span class="hljs-number">119</span>/<span class="hljs-number">819</span>...都符合，它识别和处理的规则特别乱
+</div><div class="hljs-line"><span class="hljs-built_in">var</span> reg=/^(<span class="hljs-number">18</span>|<span class="hljs-number">19</span>)$/;//-&gt;当我们使用分组把它包起来的时候就好了，现在只能匹配<span class="hljs-number">18</span>或者<span class="hljs-number">19</span>了，其余的都不可以
+</div><div class="hljs-line">=&gt;正则中
+</div></code></pre>
+
+<p>[^[(18)-(65)]<span class="MathJax_Preview"></span><span class="MathJax_SVG" id="MathJax-Element-8-Frame" role="textbox" aria-readonly="true" style="font-size: 100%; display: inline-block;"><span><img type="image/png" width="807" height="35" longdesc="__SVG__undefined" src="data:image/png;base64,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" style="margin-top:0;margin-bottom:0;"></span></span>/</p>
+
+<p>5，验证身份证号码</p>
+
+
+
+<h4 id="正则的捕获-1">正则的捕获</h4>
+
+<p>exec：可以实现正则的捕获，每一次执行exec只能捕获到一个匹配的结果，而且结果是一个数组</p>
+
+<p>第一项：当前正则捕获的内容（字符串） <br>
+index：当前正则捕获的起始索引 <br>
+input：当前操作的原始字符串</p>
+
+<p>问题：</p>
+
+
+
+<pre class="prettyprint hljs-dark"><code class="language-javascript hljs"><div class="hljs-line"><span class="hljs-keyword">var</span> reg=<span class="hljs-regexp">/\d+/</span>；<span class="hljs-comment">//-&gt;包含1到多个数字</span>
+</div><div class="hljs-line"><span class="hljs-keyword">var</span> str=<span class="hljs-string">'zhufeng2017peixun2018'</span>；
+</div></code></pre>
+
+<p>reg.exec(str)；// <br>
+index：第一次捕获到的索引，input：原始字符串</p>
+
+
+
+<h4 id="运算符优先级">运算符优先级</h4>
+
+<p><strong>首先还是先看运算符优先级吧，我自个看完的结果是【new Foo() &gt;  Foo() &gt; new Foo】</strong></p></div></body></html>
